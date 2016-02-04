@@ -7,7 +7,10 @@
                     host="{{ ansible_ssh_host | default(inventory_hostname) }}"
                     search_regex=OpenSSH
                     delay=10
-    - name: ensure that hosts are responding
-      command: echo hello
+
+    - name: ensure all hosts are accessible
+      local_action: shell ansible -m ping {{ ansible_ssh_host | default(inventory_hostname) }}
       register: result
-      until: result.stdout.find("hello") != -1
+      until: result.rc == 0
+      retries: 30
+      delay: 10
